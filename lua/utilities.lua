@@ -2,6 +2,8 @@ local config = require('config')
 
 local U = {}
 
+local recentFiles = {}
+
 local function getTopItems(list, count)
   local topItems = {}
   for i = 1, math.min(count, #list) do
@@ -20,32 +22,39 @@ local function removeByValue(array, value)
 end
 
 local function updateList(list)
-  local workspace = vim.fn.system('echo -n ' .. vim.fn.getcwd() .. ' | md5sum | cut -d " " -f 1')
-  local storageWorkspace = config.options.storage .. '.' .. workspace
-  local file = io.open(storageWorkspace, "w")
-  for _, line in ipairs(list) do
-    file:write(line .. "\n")
-  end
-  file:close()
+    if config.options.disableStorage then
+        return
+    end
+    local workspace = vim.fn.system('echo -n ' .. vim.fn.getcwd() .. ' | md5sum | cut -d " " -f 1')
+    local storageWorkspace = config.options.storage .. '.' .. workspace
+    local file = io.open(storageWorkspace, "w")
+    for _, line in ipairs(list) do
+        file:write(line .. "\n")
+    end
+    file:close()
 end
 
 local function currentList()
-  local workspace = vim.fn.system('echo -n ' .. vim.fn.getcwd() .. ' | md5sum | cut -d " " -f 1')
-  local storageWorkspace = config.options.storage .. '.' .. workspace
-  local file = io.open(storageWorkspace, "r")
-  if not file then
-    return {}
-  end
-
-  local lines = {}
-  for filepath in file:lines() do
-    if (vim.fn.filereadable(filepath) == 1) then
-      table.insert(lines, filepath)
+    if config.options.disableStorage then
+        return recentFiles
     end
-  end
 
-  file:close()
-  return lines
+    local workspace = vim.fn.system('echo -n ' .. vim.fn.getcwd() .. ' | md5sum | cut -d " " -f 1')
+    local storageWorkspace = config.options.storage .. '.' .. workspace
+    local file = io.open(storageWorkspace, "r")
+    if not file then
+        return {}
+    end
+
+    local lines = {}
+    for filepath in file:lines() do
+        if (vim.fn.filereadable(filepath) == 1) then
+            table.insert(lines, filepath)
+        end
+    end
+
+    file:close()
+    return lines
 end
 
 local function buildPopup(content, title)
@@ -209,6 +218,7 @@ local function setupPopupKeymaps(buf, win, list)
   vim.api.nvim_buf_set_keymap(buf, 'n', 'h', '', { noremap = true, silent = true, callback = _G.showHelp })
   -- Close the popup when pressing 'q' or leaving the buffer
   vim.api.nvim_buf_set_keymap(buf, 'n', 'q', '', { noremap = true, silent = true, callback = _G.closePopup })
+  vim.api.nvim_buf_set_keymap(buf, 'n', config.options.closeKeyMap or 'q', '', { noremap = true, silent = true, callback = _G.closePopup })
   vim.api.nvim_create_autocmd('BufLeave', { buffer = buf, callback = _G.closePopup })
 end
 

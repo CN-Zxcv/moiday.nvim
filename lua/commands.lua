@@ -7,6 +7,9 @@ function C.setupCommands()
   vim.api.nvim_create_user_command('MoidayFiles', function()
     utils.listRecentFiles()
   end, {})
+  vim.api.nvim_create_user_command('MoidayFilesToggle', function()
+    utils.toggleRecentFiles()
+  end, {})
 end
 
 function C.setupEvents()

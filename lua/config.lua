@@ -2,6 +2,8 @@ local C = {}
 
 C.default = {
   storage = vim.fn.stdpath('data') .. '/moiday.files',
+  disableStorage = false,
+  closeKeyMap = 'q',
   maxRecentFiles = 10,
   autoShowOnFileTypes = { 'nerdtree' },
   ignoreFiles = { 'tags', 'TAGS', 'quickfix' },
