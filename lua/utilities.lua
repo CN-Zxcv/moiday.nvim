@@ -216,9 +216,17 @@ local function setupPopupKeymaps(buf, win, list)
   vim.api.nvim_buf_set_keymap(buf, 'n', 'r', '', { noremap = true, silent = true, callback = _G.resetRecentFiles })
   -- Show help when pressing 'h'
   vim.api.nvim_buf_set_keymap(buf, 'n', 'h', '', { noremap = true, silent = true, callback = _G.showHelp })
+
+  -- 按以下键都关闭窗口
   -- Close the popup when pressing 'q' or leaving the buffer
   vim.api.nvim_buf_set_keymap(buf, 'n', 'q', '', { noremap = true, silent = true, callback = _G.closePopup })
+  vim.api.nvim_buf_set_keymap(buf, 'n', '<Esc>', '', { noremap = true, silent = true, callback = _G.closePopup }) 
   vim.api.nvim_buf_set_keymap(buf, 'n', config.options.closeKeyMap or 'q', '', { noremap = true, silent = true, callback = _G.closePopup })
+
+  -- 移动光标
+  vim.api.nvim_buf_set_keymap(buf, 'n', '<C-j>', '<Down>', {noremap = true, silent = true})
+  vim.api.nvim_buf_set_keymap(buf, 'n', '<C-k>', '<Up>', {noremap = true, silent = true})
+
   vim.api.nvim_create_autocmd('BufLeave', { buffer = buf, callback = _G.closePopup })
 end
 
